@@ -1,24 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import Menu from './MainMenu/Menu'
+import ReceiptList from './Receipts/ReceiptList'
+import Stock from './Stock/Stock'
+import IngredientList from './Ingredients/IngredientList'
+import RecipeList from './Recipes/RecipeList'
+import BatchList from './Batches/BatchList'
 
-function App() {
+
+const App = () => {
+
+  const [ currentWindow, setCurrentWindow ] = useState();
+
+  const changeWindow = (e) => {
+    let component = <div> </div>
+    switch(e.target.dataset['window']) {
+        case 'index':
+          component = <div></div>
+          break;
+        case 'receipt-list':
+          component = <ReceiptList />
+          break;
+        case 'stock':
+          component = <Stock />
+          break;
+        case 'ingredient-list':
+          component = <IngredientList />
+          break;
+        case 'recipe-list':
+          component = <RecipeList />
+          break;
+        case 'batch-list':
+          component = <BatchList />
+          break;
+        default:
+          component = <div></div>
+          break;
+      }
+    setCurrentWindow(component)
+  };
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="box">
+        <Menu changeWindow={ changeWindow } />
+      </div>
+      <div className="content">
+        { currentWindow }
+      </div>
     </div>
   );
 }
