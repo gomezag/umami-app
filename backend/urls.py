@@ -16,10 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from .views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name="index"),
+    path('', index, name="index"),
     path('api/ingredients/', views.ingredients),
     path('api/add-ingredient/', views.add_ingredient),
     path('api/add-receipt/', views.add_receipt),
