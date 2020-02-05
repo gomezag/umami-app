@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import '../css/umami.css'
-import './ReceiptEdit.css'
 
 
 
@@ -11,32 +10,38 @@ const ItemInputs =({ idx, itemState, handleItemChange, handleItemRemove, itemOpt
   const itemPrice = `price-${idx}`;
   const itemNote = `note-${idx}`;
   return (
-    <div className="level-item section is-smaller">
-      <div key={`item-${idx}`} className="field is-grouped item-entry">
-        <label htmlFor={itemName} className="level-item label">{`Item #${idx+1}`}</label>
+    <div className="section is-smaller" style={{width:'100%'}}>
+      <div key={`item-${idx}`} className="field has-addons-centered is-grouped">
+        <label htmlFor={itemName} className="level-item label">{`Item`}</label>
         <div className="select">
           <select name={itemName}
                   data-idx={idx}
                   id={itemName}
                   value={itemState[idx].item}
                   onChange={handleItemChange}
-                  className="item"
+                  data-fname="item"
           >
             {itemOptions.map(
               (val, id) =>
-                <option value={val.name} key={id} data-step={val.step} data-unit={val.unit}> {val.name} </option>
+                <option value={val.name}
+                        key={id}
+                        data-step={val.step}
+                        data-unit={val.unit}
+                        data-itemid={val.id}
+                        > {val.name} </option>
             )}
           </select>
         </div>
-        <label htmlFor={itemQty} className="level-item label"> Cant. </label>
+        <label htmlFor={itemQty} className="level-item label"> # </label>
         <input type="number"
                step={itemState[idx].step}
                name={itemQty}
                data-idx={idx}
                id={itemQty}
                value={itemState[idx].quantity}
-               className="quantity"
+               data-fname="quantity"
                onChange={ handleItemChange }
+               style={{width:'4rem'}}
         />
         <p className="level-item is-size-5">
           {itemState[idx].unit}
@@ -47,24 +52,30 @@ const ItemInputs =({ idx, itemState, handleItemChange, handleItemRemove, itemOpt
                data-idx={idx}
                id={itemPrice}
                value={itemState[idx].price}
-               className="price"
+               data-fname="price"
                onChange={ handleItemChange }
+               style={{width:'7rem'}}
         />
         <p className="level-item is-size-5"> Gs.  </p>
+
+        <input type="button"
+               value="Eliminar"
+               data-idx={idx}
+               className="button is-danger is-light"
+               onClick={ handleItemRemove }
+        />
+      </div>
+      <div className="field">
         <label htmlFor={itemNote} className="level-item label"> Nota </label>
         <input type="text"
                name={itemNote}
                data-idx={idx}
                id={itemNote}
                value={itemState[idx].note}
-               className="note"
+               data-fname="note"
                onChange={ handleItemChange }
-        />
-        <input type="button"
-               value="Eliminar"
-               data-idx={idx}
-               className="button is-danger is-light"
-               onClick={ handleItemRemove }
+               className="textarea"
+               rows='2'
         />
       </div>
     </div>

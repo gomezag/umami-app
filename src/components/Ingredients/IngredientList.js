@@ -2,28 +2,32 @@ import React, { useState, useEffect } from 'react';
 import '../css/umami.css';
 import axios from 'axios';
 import IngredientEdit from './IngredientEdit';
+import {api} from '../../actions'
+import {connect} from "react-redux";
 
-const IngredientList =()=>{
+const IngredientList =({getIngredients})=>{
 
   const [ ingredients, setIngredients ] = useState([])
+  const [ isSubscribed, setSubscribe ] = useState(true)
+
+  async function fetchIngredients() {
+    const info = await getIngredients();
+    if(isSubscribed) {
+      setIngredients(info.ingredients);
+    }
+  }
 
   // hook to run on load, only once
   useEffect(() => {
-    async function fetchIngredients() {
-      let url = '/api/ingredients'
-      const res = await fetch(url);
-      const info = await res.json();
-      setIngredients(info.ingredients);
-    }
     fetchIngredients();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function fetchIngredients() {
-    let url = '/api/ingredients'
-    const res = await fetch(url);
-    const info = await res.json();
-    setIngredients(info.ingredients);
-  }
+  useEffect(() => {
+    return () => {
+        return setSubscribe(false)
+    }
+  }, [setSubscribe])
 
   async function handleDelete(e) {
     let url='/api/del-ingredient/'
@@ -73,7 +77,14 @@ const IngredientList =()=>{
       </div>
     </div>
   )
-
 }
 
-export default IngredientList;
+const mapDispatchToProps = dispatch => {
+  return {
+    getIngredients: () => {
+      return dispatch(api.getIngredients());
+    }
+  };
+}
+
+export default connect(null, mapDispatchToProps)(IngredientList);

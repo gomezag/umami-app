@@ -1,19 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import '../css/umami.css'
+import {api} from '../../actions'
+import {connect} from "react-redux";
 
-const Stock =()=> {
+const Stock =({getIngredients})=> {
 
   const [ ingredients, setIngredients ] = useState([])
+  const [ isSubscribed, setSubscribe ] = useState(true)
   // hook to run on load, only once
-  useEffect(() => {
-    async function fetchIngredients() {
-      let url = '/api/ingredients'
-      const res = await fetch(url);
-      const info = await res.json();
-      setIngredients(info.ingredients);
+  async function fetchIngredients() {
+    const info = await getIngredients();
+    if(isSubscribed){
+      setIngredients(info.ingredients)
     }
+  }
+
+  useEffect(() => {
     fetchIngredients();
-  }, []);
+  });
+
+  useEffect(() => {
+    return () => {
+        setSubscribe(false)
+    }
+  }, [setSubscribe])
 
   return(
     <table className='table'>
@@ -37,4 +47,12 @@ const Stock =()=> {
   )
 }
 
-export default Stock;
+const mapDispatchToProps = dispatch => {
+  return {
+    getIngredients: () => {
+      return dispatch(api.getIngredients());
+    }
+  };
+}
+
+export default connect(null, mapDispatchToProps)(Stock);

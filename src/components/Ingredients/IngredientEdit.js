@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../css/umami.css'
 import axios from 'axios'
 import PropTypes from 'prop-types'
@@ -18,7 +18,7 @@ const IngredientEdit = ({toggleDialog}) => {
     toggleDialog();
     //e.persist();
   }
-  
+
   return(
       <div className="modal is-active">
         <div className="modal-background"></div>

@@ -14,24 +14,30 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include, re_path
+
 from . import views
 from .views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name="index"),
+    re_path('^api/auth/register/$', views.RegistrationAPI.as_view()),
+    re_path('^api/auth/login/$', views.LoginAPI.as_view()),
+    re_path('^api/auth/logout/$', views.logout),
+    re_path('^api/auth/user/$', views.UserAPI.as_view()),
     path('api/ingredients/', views.ingredients),
     path('api/add-ingredient/', views.add_ingredient),
-    path('api/add-receipt/', views.add_receipt),
+    path('api/mod-receipt/', views.mod_receipt),
     path('api/add-recipe/', views.add_recipe),
     path('api/recipes/', views.recipes),
     path('api/del-recipe/', views.del_recipe),
     path('api/del-ingredient/', views.del_ingredient),
-    path('api/receipts', views.receipts),
+    path('api/receipts/', views.receipts),
     path('api/del-receipt/', views.del_receipt),
     path('api/production/', views.productions),
     path('api/add-production/', views.add_production),
+    path('api/edit-production/', views.edit_production),
     path('api/del-production/', views.del_production),
 
 ]

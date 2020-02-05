@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import '../css/umami.css'
 import axios from 'axios'
-import BatchEdit, { toggleBatchAdd } from './BatchEdit'
+import BatchEdit from './BatchEdit'
+import {api} from '../../actions'
+import {connect} from "react-redux";
 
-const BatchList =()=>{
+const BatchList =({getBatches})=>{
 
   const [ productions, setBatch ] = useState([])
+  const [ isSubscribed, setSubscribe ] = useState(true)
+  const [ showEditDialog, setShowEditDialog ] = useState(false)
 
-  // hook to run on load, only once
-  useEffect(() => {
-    async function fetchBatch() {
-      let url = '/api/production/'
-      const res = await fetch(url);
-      const info = await res.json();
+  async function fetchBatch() {
+    const info = await getBatches();
+    if(isSubscribed){
       setBatch(info.productions);
     }
-    fetchBatch();
-  }, []);
-  async function fetchBatch() {
-    let url = '/api/production/'
-    const res = await fetch(url);
-    const info = await res.json();
-    setBatch(info.productions);
   }
+  // hook to run on load, only once
+  useEffect(() => {
+    fetchBatch();
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      setSubscribe(false)
+    }
+  }, [setSubscribe])
 
   async function handleDelete(e) {
     let url='/api/del-production/'
@@ -32,15 +37,25 @@ const BatchList =()=>{
     }
     const msg = await axios.put(url, out)
     console.log(msg)
+    setSubscribe(true)
     fetchBatch();
   }
 
   const [ showDialog, setShowDialog ] = useState(false)
+  const [ selectedProduction, setSelectedProduction ] = useState({})
 
     function toggleDialog() {
       const show = !showDialog
       setShowDialog(show)
+      setSubscribe(true)
       fetchBatch();
+    }
+
+    const toggleEditDialog =(e)=>{
+      setShowEditDialog(!showEditDialog)
+      if(e){
+        setSelectedProduction(productions[e.currentTarget.dataset.idx])
+      }
     }
 
   return (
@@ -49,12 +64,18 @@ const BatchList =()=>{
         <BatchEdit toggleDialog={toggleDialog} />
         : null
       }
+      {showEditDialog ?
+        <BatchEdit toggleDialog={toggleEditDialog} production={selectedProduction}/>
+        : null
+
+      }
       <div className="tile is-ancestor">
         <div className="tile is-parent">
           { productions.map((val, id) => (
             <div key={id} className="tile is-parent ">
               <article className="tile is-child box notification is-primary">
                 <a href="/#" className="delete" onClick={() => handleDelete({val})}> </a>
+                <a href="/#" className="edit" data-idx={id} onClick={toggleEditDialog}> Edit </a>
                 <p className="title"> {val.name} </p>
                 <p className="subtitle"> {val.date} </p>
                 <div className="content">
@@ -62,7 +83,7 @@ const BatchList =()=>{
                     <ul key={id2}> {val2.recipe.name} - {val2.rations} </ul>
                   ))}
                 </div>
-                <p className="title"> {val.cost} Gs. </p>
+                <p className="title"> {val.cost.toLocaleString('es')} Gs. </p>
               </article>
             </div>
           ))}
@@ -79,4 +100,12 @@ const BatchList =()=>{
 
 }
 
-export default BatchList;
+const mapDispatchToProps = dispatch => {
+  return {
+    getBatches: () => {
+      return dispatch(api.getBatches());
+    }
+  };
+}
+
+export default connect(null, mapDispatchToProps)(BatchList);

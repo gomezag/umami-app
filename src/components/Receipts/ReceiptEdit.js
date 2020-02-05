@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import './ReceiptEdit.css'
 import ItemInputs from './ItemInputs';
 import '../css/umami.css'
 import axios from 'axios'
 import { getCurrentDate } from '../utils'
 import PropTypes from 'prop-types'
+import {api} from '../../actions'
+import {connect} from "react-redux";
 
-const ReceiptEdit = ({toggleDialog}) => {
+const ReceiptEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
 
   const [ ingredients, setIngredients ] = useState([])
   const [ blankItem, setBlankItem ] = useState({})
   const [ itemState, setItemState ] = useState([]);
   const [ receiptTotal, setReceiptTotal ] = useState(0);
+  const [ isSubscribed, setSubscribe ] = useState(true)
 
 // hook to run on load, only once
-  useEffect(() => {
-    async function fetchIngredients() {
-        let url = '/api/ingredients'
-        const res = await fetch(url);
-        const info = await res.json();
+  async function fetchIngredients() {
+      const info = await getIngredients();
+      if(isSubscribed) {
         setIngredients(info.ingredients);
         setBlankItem({ item: info.ingredients[0].name,
+                       itemId: info.ingredients[0].id,
                        quantity: '',
                        price: '',
                        step: info.ingredients[0].step,
@@ -28,8 +29,35 @@ const ReceiptEdit = ({toggleDialog}) => {
                        note: ''
                      })
       }
+    }
+
+  useEffect(() => {
+      if(selectedDialog){
+        console.log(selectedDialog)
+        let istate = [];
+        selectedDialog.items.map((item, id) => {
+          istate.push({
+            item: item.item.name,
+            itemId: item.item.id,
+            quantity: item.quantity,
+            price: item.price,
+            step: item.item.step,
+            unit: item.item.unit,
+            note: item.note,
+          })
+        })
+        setItemState(istate);
+
+      }
       fetchIngredients();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    return () => {
+        return setSubscribe(false)
+    }
+  }, [setSubscribe])
 
   const addItem = () => {
     setItemState([...itemState, {...blankItem}]);
@@ -37,14 +65,15 @@ const ReceiptEdit = ({toggleDialog}) => {
 
   const handleItemChange =(e)=> {
       const updatedItems = [...itemState];
-      if(e.target.className === "item") {
+      if(e.target.dataset.fname === "item") {
         updatedItems[e.target.dataset.idx]['item'] = e.target.selectedOptions[0].value;
         updatedItems[e.target.dataset.idx]['step']=e.target.selectedOptions[0].dataset.step
         updatedItems[e.target.dataset.idx]['quantity']='0'
         updatedItems[e.target.dataset.idx]['unit']=e.target.selectedOptions[0].dataset.unit
+        updatedItems[e.target.dataset.idx]['itemId']=e.target.selectedOptions[0].dataset.itemid
       }
       else {
-        updatedItems[e.target.dataset.idx][e.target.className] = e.target.value;
+        updatedItems[e.target.dataset.idx][e.target.dataset.fname] = e.target.value;
       }
       let total = itemState.reduce(function(r,a) {
         return r+Number(a['price'])
@@ -65,9 +94,15 @@ const ReceiptEdit = ({toggleDialog}) => {
     const out = {
             date: form.date.value,
             store: form.store.value,
-            items: itemState
+            items: itemState,
+            inputMode: 'add'
           }
-    const url = '/api/add-receipt/'
+    if(selectedDialog){
+      out.receiptId =  selectedDialog.id
+      out['inputMode'] = 'edit'
+    }
+    console.log(out)
+    const url = '/api/mod-receipt/'
     const msg = await axios.put(url, out)
     console.log(msg.data)
     toggleDialog();
@@ -76,17 +111,19 @@ const ReceiptEdit = ({toggleDialog}) => {
   return(
     <div className="modal is-active">
       <div className="modal-background"></div>
-      <div className="modal-content box" style={{width:'70%'}}>
+      <div className="modal-content box is-centered" style={{width:'80%'}}>
         <div className="container">
           <div className="level">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="form">
               <div className="section">
-                <div className="level-item">
-                  <div className="field is-grouped">
+                <div className="">
+                  <div className="field">
                     <label htmlFor='date' className="label is-medium"> Fecha: </label>
                     <div className="control">
                       <input type='date' name='date' id='date' className="input" defaultValue={getCurrentDate()}/>
                     </div>
+                  </div>
+                  <div className="field">
                     <label htmlFor='store' className="label is-medium"> Tienda: </label>
                     <div className="control">
                       <input type='text' name='store' id='store' className="input"/>
@@ -126,7 +163,7 @@ const ReceiptEdit = ({toggleDialog}) => {
               <div className="level-item">
                 <div className="control">
                   <input type="submit"
-                         value="Agregar Ticket"
+                         value={selectedDialog ? "Editar Ticket" : "Agregar Ticket"}
                          className="button is-primary"
                   />
                 </div>
@@ -144,5 +181,12 @@ ReceiptEdit.propTypes = {
   toggleDialog: PropTypes.func,
 }
 
+const mapDispatchToProps = dispatch => {
+  return {
+    getIngredients: () => {
+      return dispatch(api.getIngredients());
+    }
+  };
+}
 
-export default ReceiptEdit;
+export default connect(null, mapDispatchToProps)(ReceiptEdit);

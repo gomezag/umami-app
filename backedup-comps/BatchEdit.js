@@ -4,21 +4,20 @@ import '../css/umami.css'
 import axios from 'axios'
 import { getCurrentDate } from '../utils'
 import PropTypes from 'prop-types'
+import {api} from '../../actions'
+import {connect} from "react-redux";
 
-const BatchEdit = ({toggleDialog}) => {
+const BatchEdit = ({toggleDialog, getRecipes}) => {
 
 
   const [ recipes, setRecipes ] = useState([])
   const [ blankRecipeItem, setBlankRecipeItem ] = useState({})
   const [ itemRecipeState, setItemRecipeState ] = useState([]);
+  const [ isSubscribed, setSubscribe ] = useState(true)
 
-
-// hook to run on load, only once
-  useEffect(() => {
-    async function fetchRecipe() {
-        let url = '/api/recipes'
-        const res = await fetch(url);
-        const info = await res.json();
+  async function fetchRecipe() {;
+      const info = await getRecipes();
+      if(isSubscribed){
         setRecipes(info.recipes);
         const istate = [];
         const ingredients = info.recipes[0].items
@@ -36,8 +35,13 @@ const BatchEdit = ({toggleDialog}) => {
                              rations: '1',
                              ingredients: istate
                           })
-    }
+      }
+  }
+
+// hook to run on load, only once
+  useEffect(() => {
     fetchRecipe();
+    return setSubscribe(false)
   }, []);
 
   const addRecipeItem = () => {
@@ -163,4 +167,12 @@ BatchEdit.propTypes = {
   toggleDialog: PropTypes.func,
 }
 
-export default BatchEdit;
+const mapDispatchToProps = dispatch => {
+  return {
+    getRecipes: () => {
+      return dispatch(api.getRecipes());
+    }
+  };
+}
+
+export default connect(null, mapDispatchToProps)(BatchEdit);

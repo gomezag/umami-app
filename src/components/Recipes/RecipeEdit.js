@@ -3,31 +3,41 @@ import RecipeItemInputs from './RecipeItemInputs';
 import '../css/umami.css'
 import axios from 'axios'
 import PropTypes from 'prop-types'
+import {api} from '../../actions'
+import {connect} from "react-redux";
 
 
-const RecipeEdit = ({toggleDialog}) => {
+const RecipeEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
 
+  const [ isSubscribed, setSubscribe ] = useState(true)
   const [ ingredients, setIngredients ] = useState([])
   const [ blankItem, setBlankItem ] = useState({})
   const [ itemState, setItemState ] = useState([]);
 
+  async function fetchIngredients() {
+    const info = await getIngredients();
+    if(isSubscribed){
+      setIngredients(info.ingredients);
+      setBlankItem({ item: info.ingredients[0].name,
+                     quantity: '',
+                     step: info.ingredients[0].step,
+                     unit: info.ingredients[0].unit,
+                     note: ''
+                   })
+    }
+  }
+
 // hook to run on load, only once
   useEffect(() => {
-    async function fetchIngredients() {
-        let url = '/api/ingredients'
-        const res = await fetch(url);
-        const info = await res.json();
-        setIngredients(info.ingredients);
-        setBlankItem({ item: info.ingredients[0].name,
-                       quantity: '',
-                       step: info.ingredients[0].step,
-                       unit: info.ingredients[0].unit,
-                       note: ''
-                     })
-      }
       fetchIngredients();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    return () => {
+        return setSubscribe(false)
+    }
+  }, [setSubscribe])
 
   const addItem = () => {
     setItemState([...itemState, {...blankItem}]);
@@ -138,4 +148,12 @@ RecipeEdit.propTypes = {
   toggleDialog:PropTypes.func,
 }
 
-export default RecipeEdit;
+const mapDispatchToProps = dispatch => {
+  return {
+    getIngredients: () => {
+      dispatch(api.getIngredients());
+    }
+  };
+}
+
+export default connect(null, mapDispatchToProps)(RecipeEdit);

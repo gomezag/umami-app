@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import '../css/umami.css'
+import './css/umami.css'
+import {auth} from '../actions';
+import {connect} from "react-redux";
 
 class Menu extends Component {
   state = {
@@ -85,6 +87,21 @@ class Menu extends Component {
             >
               Recetas
             </a>
+            <a className="navbar-item"
+               href="/#"
+               data-window = 'test-form'
+               onClick = {this.props.changeWindow}
+            >
+              Test Form
+            </a>
+          </div>
+          <div className="navbar-end">
+            <a className="navbar-item"
+               href="/#"
+               onClick = {this.props.logout}
+            >
+              Logout
+            </a>
           </div>
         </div>
       </nav>
@@ -92,4 +109,18 @@ class Menu extends Component {
   }
 }
 
-export default Menu;
+const mapStateToProps = state => {
+  return {
+    user: state.auth.user,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    logout: () => {
+          return dispatch(auth.logout())
+        }
+      }
+    }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Menu);

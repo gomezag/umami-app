@@ -2,19 +2,19 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import '../css/umami.css'
 import RecipeItemInputs from '../Recipes/RecipeItemInputs'
+import {api} from '../../actions'
+import {connect} from "react-redux";
 
-const BatchItemInputs =({ idx, recipeState, handleRecipeChange, handleRecipeRemove, recipeOptions, handleRecipeIngredientsChange }) => {
+const BatchItemInputs =({ idx, recipeState, handleRecipeChange, handleRecipeRemove, recipeOptions, handleRecipeIngredientsChange, getIngredients}) => {
 
   const [ ingredients, setIngredients ] = useState([])
   const [ blankIngredientItem, setBlankIngredientItem ] = useState({})
   const [ ingredientsState, setIngredientsState ] = useState([])
+  const [ isSubscribed, setSubscribe ] = useState(true)
 
-  // hook to run on load, only once
-  useEffect(() => {
-    async function fetchIngredients() {
-        let url = '/api/ingredients'
-        const res = await fetch(url);
-        const info = await res.json();
+  async function fetchIngredients() {
+      const info = await getIngredients();
+      if(isSubscribed) {
         setIngredients(info.ingredients);
         setBlankIngredientItem({
                               id: info.ingredients[0].id,
@@ -23,15 +23,16 @@ const BatchItemInputs =({ idx, recipeState, handleRecipeChange, handleRecipeRemo
                               step: info.ingredients[0].step,
                               unit: info.ingredients[0].unit,
                             })
-    }
-    fetchIngredients();
-    setIngredientsState(recipeState[idx].ingredients)
-  }, [idx, recipeState]);
-
-  // hook to run when recipe has changed
+      }
+  }
+  // hook to run on load, only once
   useEffect(() => {
-    setIngredientsState(recipeState[idx].ingredients)
-  }, [idx, recipeState])
+    fetchIngredients();
+    if(isSubscribed) {
+      setIngredientsState(recipeState[idx].ingredients)
+    }
+    return setSubscribe(false)
+  }, [fetchIngredients, recipeState, idx, isSubscribed]);
 
   const updateOnRecipeChange =(e)=> {
     handleRecipeChange(e);
@@ -143,4 +144,12 @@ BatchItemInputs.propTypes = {
   recipeOptions: PropTypes.array,
 };
 
-export default BatchItemInputs;
+const mapDispatchToProps = dispatch => {
+  return {
+    getIngredients: () => {
+      return dispatch(api.getIngredients());
+    }
+  };
+}
+
+export default connect(null, mapDispatchToProps)(BatchItemInputs);

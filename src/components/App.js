@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import './App.css';
-import Menu from './MainMenu/Menu'
+import Menu from './Menu'
 import ReceiptList from './Receipts/ReceiptList'
 import Stock from './Stock/Stock'
 import IngredientList from './Ingredients/IngredientList'
 import RecipeList from './Recipes/RecipeList'
 import BatchList from './Batches/BatchList'
+// import TestForm from './Form/TestForm'
 
 
 const App = () => {
@@ -33,12 +34,17 @@ const App = () => {
         case 'batch-list':
           component = <BatchList />
           break;
+        // case 'test-form':
+        //   component = <TestForm />
+        //   break;
         default:
           component = <div></div>
           break;
       }
     setCurrentWindow(component)
   };
+
+
   return (
     <div className="App">
       <div className="box">
