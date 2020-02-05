@@ -45,13 +45,7 @@ const ReceiptList =({getReceipts})=>{
   function toggleDialog(id) {
     const show = !showDialog
     setShowDialog(show)
-    if(id){
-
-    }
-    else{
-      fetchReceipt();
-    }
-
+    fetchReceipt();
   }
 
   const selectReceipt =(e)=> {

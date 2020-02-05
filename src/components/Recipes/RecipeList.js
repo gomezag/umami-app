@@ -44,6 +44,7 @@ const RecipeList =({getRecipes})=>{
   }
 
   const [ showDialog, setShowDialog ] = useState(false)
+  const [ selectedDialog, setSelectedDialog ] = useState()
 
   function toggleDialog() {
     const show = !showDialog
@@ -51,10 +52,20 @@ const RecipeList =({getRecipes})=>{
     fetchRecipe();
   }
 
+  const selectRecipe =(e)=> {
+    if(e.currentTarget.dataset.idx){
+      setSelectedDialog(recipes[e.currentTarget.dataset.idx])
+    }
+    else{
+      setSelectedDialog(null)
+    }
+    toggleDialog();
+  }
+
   return (
     <div className="content">
       {showDialog ?
-        <RecipeEdit toggleDialog={toggleDialog}/>
+        <RecipeEdit toggleDialog={toggleDialog} selectedDialog={selectedDialog}/>
         : null
       }
       <div className="tile is-ancestor">
@@ -63,6 +74,7 @@ const RecipeList =({getRecipes})=>{
             <div key={id} className="tile is-parent ">
               <article className="tile is-child box notification is-primary">
                 <a href="/#" className="delete" onClick={() => handleDelete({val})}> </a>
+                <a href="/#" className="add" onClick={selectRecipe} data-idx={id}> Edit </a>
                 <p className="title"> {val.name} </p>
                 <div className="content">
                   {val.items.map((val2, id2) => (
@@ -74,7 +86,7 @@ const RecipeList =({getRecipes})=>{
           ))}
           <div className="tile is-parent">
             <article className="tile is-child notification is-primary center"
-                     onClick={toggleDialog}>
+                     onClick={selectRecipe}>
                 <p className="is-large"> + </p>
             </article>
           </div>

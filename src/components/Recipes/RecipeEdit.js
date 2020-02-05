@@ -9,16 +9,19 @@ import {connect} from "react-redux";
 
 const RecipeEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
 
+  const rationsInput = React.createRef();
+  const nameInput = React.createRef();
   const [ isSubscribed, setSubscribe ] = useState(true)
   const [ ingredients, setIngredients ] = useState([])
   const [ blankItem, setBlankItem ] = useState({})
   const [ itemState, setItemState ] = useState([]);
 
   async function fetchIngredients() {
-    const info = await getIngredients();
+    const info = await getIngredients()
     if(isSubscribed){
       setIngredients(info.ingredients);
       setBlankItem({ item: info.ingredients[0].name,
+                     itemId: info.ingredients[0].id,
                      quantity: '',
                      step: info.ingredients[0].step,
                      unit: info.ingredients[0].unit,
@@ -29,6 +32,23 @@ const RecipeEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
 
 // hook to run on load, only once
   useEffect(() => {
+      if(selectedDialog){
+        rationsInput.current.value=selectedDialog.rations
+        nameInput.current.value = selectedDialog.name
+        let istate = [];
+        selectedDialog.items.map((item, id) => {
+          istate.push({
+            item: item.item.name,
+            itemId: item.item.id,
+            quantity: item.quantity,
+            step: item.item.step,
+            unit: item.item.unit,
+            note: item.note,
+          })
+          return null
+        })
+        setItemState(istate);
+      }
       fetchIngredients();
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -45,14 +65,15 @@ const RecipeEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
 
   const handleItemChange =(e)=> {
       const updatedItems = [...itemState];
-      if(e.target.className === "item") {
+      if(e.target.dataset.fname === "item") {
         updatedItems[e.target.dataset.idx]['item'] = e.target.selectedOptions[0].value;
+        updatedItems[e.target.dataset.idx]['itemId'] = e.target.selectedOptions[0].dataset.itemid;
         updatedItems[e.target.dataset.idx]['step']=e.target.selectedOptions[0].dataset.step
         updatedItems[e.target.dataset.idx]['quantity']='0'
         updatedItems[e.target.dataset.idx]['unit']=e.target.selectedOptions[0].dataset.unit
       }
       else {
-        updatedItems[e.target.dataset.idx][e.target.className] = e.target.value;
+        updatedItems[e.target.dataset.idx][e.target.dataset.fname] = e.target.value;
       }
 
       setItemState(updatedItems);
@@ -70,14 +91,19 @@ const RecipeEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
     const out = {
             name: form.name.value,
             rations: form.rations.value,
-            items: itemState
+            items: itemState,
+            inputMode: 'add',
           }
-    console.log(out)
-    const url = '/api/add-recipe/'
-    const msg = await axios.put(url, out)
+    if(selectedDialog){
+      out.recipeId = selectedDialog.id
+      out['inputMode'] = 'edit'
+    }
+    const url = '/api/mod-recipe/'
+    const msg = await axios.put(url, out).then(res => {
+      toggleDialog();
+      return res
+    })
     console.log(msg.data)
-    //e.persist();
-    toggleDialog();
   }
 
   return(
@@ -92,11 +118,11 @@ const RecipeEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
                     <div className="field is-grouped">
                       <label htmlFor='rations' className="label is-medium"> Raciones: </label>
                       <div className="control">
-                        <input type='number' name='rations' id='date' step='0.1' className="input"/>
+                        <input ref={rationsInput} type='number' name='rations' id='date' step='0.1' className="input"/>
                       </div>
                       <label htmlFor='name' className="label is-medium"> Nombre: </label>
                       <div className="control">
-                        <input type='text' name='name' id='store' className="input"/>
+                        <input ref={nameInput} type='text' name='name' id='store' className="input"/>
                       </div>
                     </div>
                   </div>
@@ -151,7 +177,7 @@ RecipeEdit.propTypes = {
 const mapDispatchToProps = dispatch => {
   return {
     getIngredients: () => {
-      dispatch(api.getIngredients());
+      return dispatch(api.getIngredients());
     }
   };
 }

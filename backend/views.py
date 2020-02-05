@@ -117,21 +117,39 @@ def recipes(request):
 
 
 @api_view(['PUT'])
-def add_recipe(request):
+def mod_recipe(request):
     data = request.data
     try:
-        recipe = kmodels.Recipe()
-        recipe.name = data['name']
-        recipe.rations = data['rations']
-        recipe.save()
-        for entry in data['items']:
-            item = kmodels.RecipeIngredient()
-            item.recipe = recipe
-            item.item = kmodels.Ingredient.objects.get(name=entry['item'])
-            item.note = entry['note']
-            item.quantity = entry['quantity']
-            item.save()
-        return Response('OK', status=status.HTTP_200_OK)
+        if data['inputMode'] == 'add':
+            recipe = kmodels.Recipe()
+            recipe.name = data['name']
+            recipe.rations = data['rations']
+            recipe.save()
+            for entry in data['items']:
+                item = kmodels.RecipeIngredient()
+                item.recipe = recipe
+                item.item = kmodels.Ingredient.objects.get(name=entry['item'])
+                item.note = entry['note']
+                item.quantity = entry['quantity']
+                item.save()
+            return Response('OK', status=status.HTTP_200_OK)
+        elif data['inputMode'] == 'edit':
+            recipe = kmodels.Recipe.objects.get(id=data['recipeId'])
+            recipe.name = data['name']
+            recipe.rations = data['rations']
+            recipe.save()
+            for item in recipe.recipeingredient_set.all():
+                item.delete()
+            for entry in data['items']:
+                item = kmodels.RecipeIngredient()
+                item.recipe = recipe
+                item.item = kmodels.Ingredient.objects.get(id=entry['itemId'])
+                item.note = entry['note']
+                item.quantity = entry['quantity']
+                item.save()
+            return Response('OK', status=status.HTTP_200_OK)
+        else:
+            return Response('Bad request', status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response(repr(e), status=status.HTTP_200_OK)
 

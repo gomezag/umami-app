@@ -9,6 +9,8 @@ import {connect} from "react-redux";
 
 const ReceiptEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
 
+  const dateInput = React.createRef();
+  const storeInput = React.createRef();
   const [ ingredients, setIngredients ] = useState([])
   const [ blankItem, setBlankItem ] = useState({})
   const [ itemState, setItemState ] = useState([]);
@@ -33,7 +35,8 @@ const ReceiptEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
 
   useEffect(() => {
       if(selectedDialog){
-        console.log(selectedDialog)
+        dateInput.current.value=selectedDialog.date
+        storeInput.current.value=selectedDialog.store
         let istate = [];
         selectedDialog.items.map((item, id) => {
           istate.push({
@@ -45,6 +48,7 @@ const ReceiptEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
             unit: item.item.unit,
             note: item.note,
           })
+          return null
         })
         setItemState(istate);
 
@@ -101,11 +105,12 @@ const ReceiptEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
       out.receiptId =  selectedDialog.id
       out['inputMode'] = 'edit'
     }
-    console.log(out)
     const url = '/api/mod-receipt/'
-    const msg = await axios.put(url, out)
+    const msg = await axios.put(url, out).then(res => {
+      toggleDialog()
+      return res
+    })
     console.log(msg.data)
-    toggleDialog();
   }
 
   return(
@@ -120,13 +125,13 @@ const ReceiptEdit = ({toggleDialog, getIngredients, selectedDialog}) => {
                   <div className="field">
                     <label htmlFor='date' className="label is-medium"> Fecha: </label>
                     <div className="control">
-                      <input type='date' name='date' id='date' className="input" defaultValue={getCurrentDate()}/>
+                      <input ref={dateInput} type='date' name='date' id='date' className="input" defaultValue={getCurrentDate()}/>
                     </div>
                   </div>
                   <div className="field">
                     <label htmlFor='store' className="label is-medium"> Tienda: </label>
                     <div className="control">
-                      <input type='text' name='store' id='store' className="input"/>
+                      <input ref={storeInput} type='text' name='store' id='store' className="input"/>
                     </div>
                   </div>
                 </div>

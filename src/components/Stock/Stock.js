@@ -17,7 +17,8 @@ const Stock =({getIngredients})=> {
 
   useEffect(() => {
     fetchIngredients();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     return () => {

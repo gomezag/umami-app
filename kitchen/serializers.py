@@ -37,6 +37,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         fields = (
             'item',
             'quantity',
+            'note',
         )
         model = RecipeIngredient
 

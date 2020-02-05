@@ -18,6 +18,7 @@ const RecipeItemInputs =({ idx, itemState, handleItemChange, handleItemRemove, i
                   id={itemName}
                   value={itemState[idx].item}
                   onChange={handleItemChange}
+                  data-fname="item"
                   className="item"
           >
             {itemOptions.map(
@@ -26,7 +27,7 @@ const RecipeItemInputs =({ idx, itemState, handleItemChange, handleItemRemove, i
                         key={id}
                         data-step={val.step}
                         data-unit={val.unit}
-                        data-id={val.id}
+                        data-itemid={val.id}
                 >
                   {val.name}
                 </option>
@@ -41,6 +42,7 @@ const RecipeItemInputs =({ idx, itemState, handleItemChange, handleItemRemove, i
                id={itemQty}
                value={itemState[idx].quantity}
                className="quantity"
+               data-fname="quantity"
                onChange={ handleItemChange }
                style={{width: '5em'}}
         />
@@ -53,6 +55,7 @@ const RecipeItemInputs =({ idx, itemState, handleItemChange, handleItemRemove, i
                data-idx={idx}
                id={itemNote}
                value={itemState[idx].note}
+               data-fname="note"
                className="note"
                onChange={ handleItemChange }
         />

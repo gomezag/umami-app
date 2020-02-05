@@ -13,7 +13,10 @@ const IngredientEdit = ({toggleDialog}) => {
             unit: form.unit.value,
           }
     const url = '/api/add-ingredient/'
-    const msg = await axios.put(url, out)
+    const msg = await axios.put(url, out).then(res => {
+      toggleDialog();
+      return res
+    })
     console.log(msg.data)
     toggleDialog();
     //e.persist();

@@ -135,16 +135,21 @@ class BatchEdit extends Component {
           }
     if(this.state.inputMode==='add'){
       const url = '/api/add-production/'
-      const msg = await axios.put(url, out)
+      const msg = await axios.put(url, out).then(res => {
+        this.props.toggleDialog();
+        return res
+      })
       console.log(msg.data)
     }
     if(this.state.inputMode==='edit'){
       out['production_id'] = this.state.batchId
       const url = '/api/edit-production/'
-      const msg = await axios.put(url, out)
+      const msg = await axios.put(url, out).then(res => {
+        this.props.toggleDialog();
+        return res
+      })
       console.log(msg.data)
     }
-    this.props.toggleDialog();
   }
 
   render(){

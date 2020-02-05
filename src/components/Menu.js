@@ -10,7 +10,6 @@ class Menu extends Component {
   };
 
   toggleMenu =(e)=> {
-    console.log(e.target.dataset.action)
     if(this.state.menu === 'is-active'){
       this.setState({
         menu: ''
