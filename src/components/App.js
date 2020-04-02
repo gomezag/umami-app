@@ -7,6 +7,8 @@ import IngredientList from './Ingredients/IngredientList'
 import RecipeList from './Recipes/RecipeList'
 import BatchList from './Batches/BatchList'
 // import TestForm from './Form/TestForm'
+import SalesList from './Sales/SalesList'
+//import SaleEdit from './Sales/SaleEdit'
 
 
 const App = () => {
@@ -34,11 +36,11 @@ const App = () => {
         case 'batch-list':
           component = <BatchList />
           break;
-        // case 'test-form':
-        //   component = <TestForm />
-        //   break;
+        case 'sales':
+          component = <SalesList />
+          break;
         default:
-          component = <div></div>
+          component = <div className="content">Nothing selected </div>
           break;
       }
     setCurrentWindow(component)

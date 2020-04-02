@@ -150,6 +150,7 @@ class BatchEdit extends Component {
       })
       console.log(msg.data)
     }
+    console.log(out)
   }
 
   render(){

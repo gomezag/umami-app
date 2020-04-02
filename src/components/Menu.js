@@ -88,10 +88,10 @@ class Menu extends Component {
             </a>
             <a className="navbar-item"
                href="/#"
-               data-window = 'test-form'
+               data-window = 'sales'
                onClick = {this.props.changeWindow}
             >
-              Test Form
+              Ventas
             </a>
           </div>
           <div className="navbar-end">

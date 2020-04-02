@@ -40,7 +40,7 @@ const Stock =({getIngredients})=> {
           <tr key={idx}>
             <td> {item.id} </td>
             <td> {item.name} </td>
-            <td> {item.stock} </td>
+            <td> {item.stock} {item.unit}</td>
           </tr>
         ))}
       </tbody>

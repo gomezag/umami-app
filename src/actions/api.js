@@ -60,6 +60,26 @@ export const getBatches = () => {
   }
 }
 
+export const getProducts = () => {
+  return (dispatch, getState) => {
+    const token = getState().auth.token;
+    let headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Token ${token}`;
+      return fetch("/api/products/", {headers, })
+      .then(res => {
+        return res.json()
+      })
+      .then(res => {
+        return res
+      })
+    }
+  }
+}
+
 export const getReceipts = () => {
   return (dispatch, getState) => {
     const token = getState().auth.token;
@@ -70,6 +90,26 @@ export const getReceipts = () => {
     if (token) {
       headers["Authorization"] = `Token ${token}`;
       return fetch("/api/receipts/", {headers, })
+      .then(res => {
+        return res.json()
+      })
+      .then(res => {
+        return res
+      })
+    }
+  }
+}
+
+export const getSales = () => {
+  return (dispatch, getState) => {
+    const token = getState().auth.token;
+    let headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Token ${token}`;
+      return fetch("/api/sales/", {headers, })
       .then(res => {
         return res.json()
       })

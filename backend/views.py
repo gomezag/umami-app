@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views.decorators.cache import never_cache
+from django.db.models import F
 from rest_framework import status, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -232,7 +233,6 @@ def del_receipt(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def productions(request):
     productions_list = kmodels.Production.objects.all()
     serialized_productions = kserializers.ProductionSerializer(productions_list, many=True)
@@ -305,6 +305,74 @@ def del_production(request):
     try:
         production = kmodels.Production.objects.get(id=data['id'])
         production.delete()
+        return Response('OK', status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(repr(e), status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def sales(request):
+    sale_list = kmodels.Sale.objects.all()
+    serialized_sales = kserializers.SaleSerializer(sale_list, many=True)
+    context = {
+        'sales': serialized_sales.data,
+    }
+    return Response(context)
+
+
+@api_view(['GET'])
+def products(request):
+    batch_list = kmodels.Batch.objects.all()
+    batch_list = [x for x in batch_list if x.stock > 0]
+    serialized_batches = kserializers.BatchSerializer(batch_list, many=True)
+    context = {
+        'products': serialized_batches.data,
+    }
+    print(context)
+    return Response(context)
+
+
+@api_view(['PUT'])
+def mod_sale(request):
+    data = request.data
+    try:
+        if data['inputMode'] == 'add':
+            print(data['items'])
+            sale = kmodels.Sale()
+            sale.date = data['date']
+            sale.buyer = data['buyer']
+            sale.price = sum([int(x['price']) for x in data['items']])
+            sale.save()
+            for item in data['items']:
+                sale_item = kmodels.SaleItem()
+                sale_item.sale = sale
+                batch = kmodels.Batch.objects.get(id=item['id'])
+                sale_item.batch = batch
+                rations_remaining = batch.stock-float(item['quantity'])
+                if rations_remaining < 0:
+                    sale.delete()
+                    return Response('Qty Max', status=status.HTTP_200_OK)
+                batch.rations_sold = batch.rations_sold+float(item['quantity'])
+                print(batch.rations_sold)
+                batch.save()
+                sale_item.price = item['price']
+                sale_item.quantity = item['quantity']
+                sale_item.save()
+            return Response('OK', status=status.HTTP_200_OK)
+        elif data['inputMode'] == 'edit':
+            return Response('OK', status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(repr(e), status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+def del_sale(request):
+    data = request.data
+    try:
+        sale = kmodels.Sale.objects.get(id=data['id'])
+        sale.delete()
         return Response('OK', status=status.HTTP_200_OK)
 
     except Exception as e:

@@ -38,7 +38,7 @@ class Ingredient(models.Model):
         for ingredient in ingredients_used:
             qty_used = qty_used+ingredient.quantity
 
-        ingredients_bought = [x for x in self.receiptitem_set.filter(receipt__date__lt=current_date)]
+        ingredients_bought = [x for x in self.receiptitem_set.filter(receipt__date__lte=current_date)]
         price_table_of_not_used = [(x.quantity, x.price) for x in ingredients_bought]
         index_to_delete = []
         for ingredient in ingredients_bought:
@@ -51,12 +51,12 @@ class Ingredient(models.Model):
                 index_to_delete.append(ingredients_bought.index(ingredient))
                 price_table_of_not_used.append((last_quantity, last_price))
                 break
-
-        print(index_to_delete)
-        print(price_table_of_not_used)
+        #
+        # print(index_to_delete)
+        # print(price_table_of_not_used)
         for index in sorted(index_to_delete, reverse=True):
             price_table_of_not_used.pop(index)
-        print(price_table_of_not_used)
+        # print(price_table_of_not_used)
         average_cost = sum([x[1]/x[0] for x in price_table_of_not_used])
         return average_cost
 
@@ -117,16 +117,39 @@ class Production(models.Model):
 class Batch(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.PROTECT)
     production = models.ForeignKey(Production, on_delete=models.CASCADE)
-    rations = models.FloatField()
+    rations = models.FloatField(null=False)
     ingredients = models.ManyToManyField(Ingredient, through='BatchIngredient')
+    rations_sold = models.FloatField(default=0, null=False)
+
+    def __str__(self):
+        return '%d ud.'%(self.rations)+ ' - ' + self.recipe.name+'('+str(self.production.date)+')'
+
+    @property
+    def name(self):
+        return str(self)
 
     @property
     def cost(self):
         total = 0
         for ingredient in self.batchingredient_set.all():
-            print(ingredient.item)
-            print(self.production.date)
+            # print(ingredient.item)
+            # print(self.production.date)
             total = total + ingredient.item.cost_at_date(self.production.date)*ingredient.quantity
+
+        return '%d'%(total)
+
+    @property
+    def stock(self):
+        total = float(self.rations)
+        try:
+            print(self.saleitem_set.all())
+            for sale in self.saleitem_set.all():
+                print(sale)
+                print(sale.quantity)
+                total = total - float(sale.quantity)
+        except Exception as e:
+            print(repr(e))
+            return 0
 
         return total
 

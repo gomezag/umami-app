@@ -51,6 +51,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'items',
             'name',
             'rations',
+
         )
         model = Recipe
 
@@ -78,6 +79,8 @@ class BatchSerializer(serializers.ModelSerializer):
             'rations',
             'recipe',
             'ingredients',
+            'name',
+            'cost',
         )
         model = Batch
 
@@ -94,3 +97,25 @@ class ProductionSerializer(serializers.ModelSerializer):
             'cost',
         )
         model = Production
+
+
+class SaleItemSerializer(serializers.ModelSerializer):
+    batch = BatchSerializer()
+
+    class Meta:
+        fields = (
+            'id',
+            'batch',
+            'quantity',
+            'note',
+            'price',
+        )
+        model = SaleItem
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    batches = SaleItemSerializer(source='saleitem_set', many=True, read_only=True)
+
+    class Meta:
+        fields='__all__'
+        model = Sale

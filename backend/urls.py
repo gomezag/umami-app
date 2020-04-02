@@ -39,5 +39,8 @@ urlpatterns = [
     path('api/add-production/', views.add_production),
     path('api/edit-production/', views.edit_production),
     path('api/del-production/', views.del_production),
-
+    path('api/sales/', views.sales),
+    path('api/products/', views.products),
+    path('api/mod-sale', views.mod_sale),
+    path('api/del-sale/', views.del_sale),
 ]
