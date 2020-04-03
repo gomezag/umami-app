@@ -3,13 +3,14 @@ from django.views.generic import TemplateView
 from django.views.decorators.cache import never_cache
 from django.db.models import F
 from rest_framework import status, generics, permissions
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 import kitchen.models as kmodels
 import kitchen.serializers as kserializers
 from .serializers import LoginUserSerializer, UserSerializer, CreateUserSerializer
-from knox.models import AuthToken
+#from knox.models import AuthToken
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import BasicAuthentication
 
@@ -27,7 +28,7 @@ class RegistrationAPI(generics.GenericAPIView):
         user = serializer.save()
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": AuthToken.objects.create(user)[1]
+            "token": Token.objects.get_or_create(user)[1]
         })
 
 

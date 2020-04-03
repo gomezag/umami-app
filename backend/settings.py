@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import django_heroku
-import dj_database_url
+#import django_heroku
+#import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,8 +27,8 @@ SECRET_KEY = 'z-w!ek6f1)!du@r5inrf3ka%e7p5w@an=37jfy=7@6vc3mef97'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['umami-app.herokuapp.com']
-
+#ALLOWED_HOSTS = ['umami-app.herokuapp.com']
+ALLOWED_HOSTS = ['localhost']
 
 # Application definition
 
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'rest_framework',
-    'knox',
+#    'knox',
     'kitchen',
     'corsheaders',
 ]
@@ -71,7 +71,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'build')],
+        'DIRS': [os.path.join(BASE_DIR,'build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,6 +82,15 @@ TEMPLATES = [
             ],
         },
     },
+#    {
+#       'BACKEND': 'django.contrib.auth.context_processors.auth',
+#       'DIRS' : ['/var/services/homes/agustin/.local/lib/python3.5/site-packages/django/contrib/admin/templates/admin'],
+#       'OPTIONS': {
+#          'context_processors':[
+#              'django.contrib.messages.context_processors.messages',
+#              ],
+#          }
+#  },
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
@@ -93,7 +102,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR,'db.sqlite3'),
     }
 }
 
@@ -136,8 +145,8 @@ USE_TZ = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-#        'rest_framework.authentication.TokenAuthentication',
-        'knox.auth.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+#        'knox.auth.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
@@ -145,7 +154,7 @@ REST_FRAMEWORK = {
 }
 
 # Activate Django-Heroku.
-django_heroku.settings(locals())
+#django_heroku.settings(locals())
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -161,5 +170,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'build', 'media')
 
-prod_db = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(prod_db)
+#prod_db = dj_database_url.config(conn_max_age=500)
+#DATABASES['default'].update(prod_db)
