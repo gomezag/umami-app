@@ -52,7 +52,7 @@ class LoginAPI(generics.GenericAPIView):
         print(user)
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": Token.objects.get_or_create(user=user)[0]
+            "token": Token.objects.get_or_create(user=user)[0].key
         })
 
 
