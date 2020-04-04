@@ -28,7 +28,7 @@ SECRET_KEY = 'z-w!ek6f1)!du@r5inrf3ka%e7p5w@an=37jfy=7@6vc3mef97'
 DEBUG = True
 
 #ALLOWED_HOSTS = ['umami-app.herokuapp.com']
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -41,14 +41,19 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
 #    'knox',
     'kitchen',
     'corsheaders',
 ]
 
+CSRF_TRUSTED_ORIGINS = ['ds.agustingomez.me','192.168.1.156']
+#CSRF_COOKIE_DOMAIN = ['agustingomez.me']
+#CSRF_COOKIE_SECURE=True
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,13 +63,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_REPLACE_HTTPS_REFERER = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000"
-]
+#CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://192.168.1.156:8000"]
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -82,15 +86,7 @@ TEMPLATES = [
             ],
         },
     },
-#    {
-#       'BACKEND': 'django.contrib.auth.context_processors.auth',
-#       'DIRS' : ['/var/services/homes/agustin/.local/lib/python3.5/site-packages/django/contrib/admin/templates/admin'],
-#       'OPTIONS': {
-#          'context_processors':[
-#              'django.contrib.messages.context_processors.messages',
-#              ],
-#          }
-#  },
+
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
