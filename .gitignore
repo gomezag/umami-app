@@ -25,5 +25,5 @@ yarn-error.log*
 
 /.idea
 *.pyc
-/venv
+/umami-app
 db.sqlite3
