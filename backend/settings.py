@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'z-w!ek6f1)!du@r5inrf3ka%e7p5w@an=37jfy=7@6vc3mef97'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 #ALLOWED_HOSTS = ['umami-app.herokuapp.com']
 ALLOWED_HOSTS = ['*']
